@@ -146,7 +146,10 @@ export const deliveryRequests = pgTable(
     retailerId: integer("retailer_id")
       .references(() => retailers.id)
       .notNull(),
-
+      trackingToken: varchar(
+    "tracking_token",
+    { length: 255 }
+    ).notNull().unique(),
     customerName: varchar("customer_name", {
       length: 255,
     }).notNull(),
@@ -176,7 +179,12 @@ export const deliveryRequests = pgTable(
     specialInstructions: text(
       "special_instructions"
     ),
+  
 
+    deliveryQrCode: varchar(
+    "delivery_qr_code",
+    { length: 255 }
+    ),
     status: deliveryStatusEnum(
       "status"
     ).default("open"),
