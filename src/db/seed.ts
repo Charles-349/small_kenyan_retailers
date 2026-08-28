@@ -1,4 +1,8 @@
 import "dotenv/config";
+import crypto from "crypto";
+import QRCode from "qrcode";
+import bcrypt from "bcrypt";
+
 import { db } from "./index";
 
 import {
@@ -11,8 +15,6 @@ import {
   deliveryStatusHistory,
   riderLocations,
 } from "./schema";
-
-import bcrypt from "bcrypt";
 
 async function seed() {
   console.log("🌱 Seeding database...");
@@ -182,12 +184,30 @@ async function seed() {
     heading: 0,
   });
 
-  // DELIVERY REQUESTS
+  // DELIVERY 1
+
+  const delivery1TrackingToken =
+    crypto.randomUUID();
+
+  const delivery1VerificationToken =
+    crypto.randomUUID();
+
+  const delivery1QrCode =
+    await QRCode.toDataURL(
+      delivery1VerificationToken
+    );
 
   const [delivery1] = await db
     .insert(deliveryRequests)
     .values({
       retailerId: retailer1.id,
+      trackingToken:
+        delivery1TrackingToken,
+      deliveryVerificationToken:
+        delivery1VerificationToken,
+      deliveryQrCode:
+        delivery1QrCode,
+
       customerName: "Alice",
       customerPhone: "0701234567",
       deliveryAddress: "Parklands",
@@ -198,10 +218,30 @@ async function seed() {
     })
     .returning();
 
+  // DELIVERY 2
+
+  const delivery2TrackingToken =
+    crypto.randomUUID();
+
+  const delivery2VerificationToken =
+    crypto.randomUUID();
+
+  const delivery2QrCode =
+    await QRCode.toDataURL(
+      delivery2VerificationToken
+    );
+
   const [delivery2] = await db
     .insert(deliveryRequests)
     .values({
       retailerId: retailer1.id,
+      trackingToken:
+        delivery2TrackingToken,
+      deliveryVerificationToken:
+        delivery2VerificationToken,
+      deliveryQrCode:
+        delivery2QrCode,
+
       customerName: "Bob",
       customerPhone: "0702345678",
       deliveryAddress: "Kilimani",
@@ -210,10 +250,30 @@ async function seed() {
     })
     .returning();
 
+  // DELIVERY 3
+
+  const delivery3TrackingToken =
+    crypto.randomUUID();
+
+  const delivery3VerificationToken =
+    crypto.randomUUID();
+
+  const delivery3QrCode =
+    await QRCode.toDataURL(
+      delivery3VerificationToken
+    );
+
   const [delivery3] = await db
     .insert(deliveryRequests)
     .values({
       retailerId: retailer2.id,
+      trackingToken:
+        delivery3TrackingToken,
+      deliveryVerificationToken:
+        delivery3VerificationToken,
+      deliveryQrCode:
+        delivery3QrCode,
+
       customerName: "Carol",
       customerPhone: "0703456789",
       deliveryAddress: "Lavington",
@@ -232,7 +292,6 @@ async function seed() {
   });
 
   // STATUS HISTORY
-
   await db.insert(deliveryStatusHistory).values([
     {
       deliveryRequestId: delivery1.id,
