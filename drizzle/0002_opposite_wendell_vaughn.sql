@@ -1,0 +1,2 @@
+ALTER TABLE "delivery_requests" ADD COLUMN "delivery_verification_token" varchar(255) NOT NULL;--> statement-breakpoint
+ALTER TABLE "delivery_requests" ADD CONSTRAINT "delivery_requests_delivery_verification_token_unique" UNIQUE("delivery_verification_token");
