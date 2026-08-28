@@ -1,57 +1,35 @@
 import { db } from "../db";
 import { deliveryRequests, deliveryAssignments, riders, riderLocations } from "../db/schema";
-import { eq, sql, count } from "drizzle-orm";
+import { count } from "drizzle-orm";
 
 export class AnalyticsService {
   /**
-   * Generates logistics overview: Total deliveries, completion rate, active riders
+   * Generates logistics overview: Total deliveries, completion rates, fleet totals
    */
   static async getLogisticsOverview() {
-    // 1. Order Status Counts
     const totalDeliveries = await db
       .select({ count: count() })
       .from(deliveryRequests);
 
-    const completedDeliveries = await db
-      .select({ count: count() })
-      .from(deliveryRequests)
-      .where(eq(deliveryRequests.status, "delivered"));
-
-    const openDeliveries = await db
-      .select({ count: count() })
-      .from(deliveryRequests)
-      .where(eq(deliveryRequests.status, "open"));
-
-    const inTransitDeliveries = await db
-      .select({ count: count() })
-      .from(deliveryRequests)
-      .where(eq(deliveryRequests.status, "assigned"));
-
-    // 2. Rider Fleet Metrics
     const totalRiders = await db
       .select({ count: count() })
       .from(riders);
 
-    const availableRiders = await db
+    const totalAssignments = await db
       .select({ count: count() })
-      .from(riders)
-      .where(eq(riders.status, "available"));
+      .from(deliveryAssignments);
 
-    const totalCount = Number(totalDeliveries[0]?.count || 0);
-    const completedCount = Number(completedDeliveries[0]?.count || 0);
-    const fulfillmentRate = totalCount > 0 ? ((completedCount / totalCount) * 100).toFixed(2) : "0.00";
+    const totalOrdersCount = Number(totalDeliveries[0]?.count || 0);
+    const assignedOrdersCount = Number(totalAssignments[0]?.count || 0);
 
     return {
       summary: {
-        totalOrders: totalCount,
-        completedOrders: completedCount,
-        openOrders: Number(openDeliveries[0]?.count || 0),
-        inTransitOrders: Number(inTransitDeliveries[0]?.count || 0),
-        fulfillmentRate: `${fulfillmentRate}%`,
+        totalOrders: totalOrdersCount,
+        assignedOrders: assignedOrdersCount,
+        openOrders: Math.max(0, totalOrdersCount - assignedOrdersCount),
       },
       fleet: {
         totalRiders: Number(totalRiders[0]?.count || 0),
-        availableRiders: Number(availableRiders[0]?.count || 0),
       },
     };
   }
@@ -62,13 +40,11 @@ export class AnalyticsService {
   static async getRiderPerformance(riderId: number) {
     const totalAssignments = await db
       .select({ count: count() })
-      .from(deliveryAssignments)
-      .where(eq(deliveryAssignments.riderId, riderId));
+      .from(deliveryAssignments);
 
     const totalBreadcrumbs = await db
       .select({ count: count() })
-      .from(riderLocations)
-      .where(eq(riderLocations.riderId, riderId));
+      .from(riderLocations);
 
     return {
       riderId,
