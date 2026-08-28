@@ -1,0 +1,258 @@
+:root {
+    --ink: #1c2430;
+    --paper: #f3f5f7;
+    --surface: #ffffff;
+    --line: #dde2e8;
+    --route: #2d4356;
+    --amber: #c17817;
+    --green: #1f7a4d;
+    --red: #b3412c;
+    --muted: #6b7480;
+
+    --font-display: "Space Grotesk", "Segoe UI", sans-serif;
+    --font-body: "Inter", "Segoe UI", sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+}
+
+.app {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background: var(--paper);
+    display: flex;
+    flex-direction: column;
+}
+
+.app-header {
+    padding: 20px 20px 0;
+}
+
+.app-header h1 {
+    font-family: var(--font-display);
+    font-size: 22px;
+    letter-spacing: -0.01em;
+    margin: 0 0 2px;
+}
+
+.app-header p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.tabs {
+    display: flex;
+    gap: 4px;
+    margin: 16px 20px 0;
+    padding: 4px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+}
+
+.tab {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 10px 8px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    border-radius: 7px;
+    cursor: pointer;
+}
+
+.tab[aria-selected="true"] {
+    background: var(--route);
+    color: white;
+}
+
+.screen {
+    padding: 20px;
+    flex: 1;
+}
+
+.field {
+    margin-bottom: 14px;
+}
+
+.field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.field input,
+.field textarea {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: var(--font-body);
+    background: var(--surface);
+    color: var(--ink);
+}
+
+.field input:focus,
+.field textarea:focus {
+    outline: 2px solid var(--route);
+    outline-offset: 1px;
+}
+
+.btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: var(--route);
+    color: white;
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background: var(--surface);
+    color: var(--route);
+    border: 1px solid var(--route);
+}
+
+.card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 10px;
+}
+
+.card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+}
+
+.card-title {
+    font-weight: 600;
+    font-size: 15px;
+    margin: 0;
+}
+
+.card-sub {
+    color: var(--muted);
+    font-size: 13px;
+    margin: 2px 0 0;
+}
+
+.status-pill {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 3px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.status-OPEN { background: #e9edf1; color: var(--route); }
+.status-ASSIGNED { background: #fdf1de; color: var(--amber); }
+.status-PICKED_UP { background: #fdf1de; color: var(--amber); }
+.status-DELIVERED { background: #e4f3ea; color: var(--green); }
+.status-CANCELLED { background: #f6e6e2; color: var(--red); }
+
+.route-track {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 10px;
+}
+
+.route-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--line);
+}
+
+.route-dot.filled {
+    background: var(--route);
+}
+
+.route-line {
+    flex: 1;
+    height: 2px;
+    background: var(--line);
+}
+
+.route-line.filled {
+    background: var(--route);
+}
+
+.empty-state {
+    text-align: center;
+    color: var(--muted);
+    padding: 40px 20px;
+    font-size: 14px;
+}
+
+.select-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.select-row select {
+    flex: 1;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    font-size: 14px;
+}
+
+.select-row button {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: none;
+    background: var(--route);
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.toast {
+    background: var(--ink);
+    color: white;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 14px;
+}
+
+.error-text {
+    color: var(--red);
+    font-size: 13px;
+    margin-top: 8px;
+  }
