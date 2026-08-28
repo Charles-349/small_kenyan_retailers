@@ -55,6 +55,9 @@ export const createDelivery = async (
   const trackingToken =
     crypto.randomUUID();
 
+  const deliveryVerificationToken =
+    crypto.randomUUID();
+
   const trackingUrl =
     `${
       process.env.FRONTEND_URL ||
@@ -63,7 +66,7 @@ export const createDelivery = async (
 
   const deliveryQrCode =
     await QRCode.toDataURL(
-      trackingUrl
+      deliveryVerificationToken
     );
 
   const [delivery] = await db
@@ -72,6 +75,8 @@ export const createDelivery = async (
       retailerId: retailer.id,
 
       trackingToken,
+
+      deliveryVerificationToken,
 
       deliveryQrCode,
 

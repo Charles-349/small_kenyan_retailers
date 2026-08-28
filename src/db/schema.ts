@@ -153,7 +153,10 @@ export const deliveryRequests = pgTable(
     customerName: varchar("customer_name", {
       length: 255,
     }).notNull(),
-
+    deliveryVerificationToken: varchar(
+   "delivery_verification_token",
+    { length: 255 }
+    ).notNull().unique(),
     customerPhone: varchar("customer_phone", {
       length: 20,
     }).notNull(),
