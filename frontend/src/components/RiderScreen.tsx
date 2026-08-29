@@ -1,118 +1,18 @@
 import { useEffect, useState } from "react";
 import { fetchRiderDeliveries, updateDeliveryStatus } from "../api";
-import { DeliveryRequest } from "../types";
+import { DeliveryRequest, DeliveryStatus } from "../types";
 
 const RIDER_ID = "rider-demo-1";
-
-const STEPS: DeliveryRequest["status"][] = ["ASSIGNED", "PICKED_UP", "DELIVERED"];
-
-function RouteTrack({ status }: { status: DeliveryRequest["status"] }) {
-    const currentIndex = STEPS.indexOf(status);
-    return (
-        <div className="route-track">
-            {STEPS.map((step, i) => (
-                <div key={step} style={{ display: "flex", alignItems: "center", flex: i < STEPS.length - 1 ? 1 : 0 }}>
-                    <div className={`route-dot ${i <= currentIndex ? "filled" : ""}`} />
-                    {i < STEPS.length - 1 && (
-                        <div className={`route-line ${i < currentIndex ? "filled" : ""}`} />
-                    )}
-                </div>
-            ))}
-        </div>
-    );
-}
+const STEPS: DeliveryStatus[] = ["ASSIGNED", "PICKED_UP", "IN_TRANSIT", "ARRIVED", "DELIVERED"];
 
 export default function RiderScreen() {
-    const [deliveries, setDeliveries] = useState<DeliveryRequest[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [scanTarget, setScanTarget] = useState<string | null>(null);
-    const [scanInput, setScanInput] = useState("");
-    const [error, setError] = useState<string | null>(null);
+    const [deliveries, setDeliveries] = useState<DeliveryRequest[]>([]); const [loading, setLoading] = useState(true); const [scanTarget, setScanTarget] = useState<string|null>(null); const [scanInput, setScanInput] = useState(""); const [error, setError] = useState<string|null>(null);
+    const load = async () => { try { const data = await fetchRiderDeliveries(RIDER_ID); setDeliveries(data.filter(d => d.status !== "DELIVERED")); } catch {} finally { setLoading(false); } };
+    useEffect(() => { load(); }, []);
+    const advance = async (d: DeliveryRequest) => { const next: Record<string, DeliveryStatus> = { ASSIGNED:"PICKED_UP", PICKED_UP:"IN_TRANSIT", IN_TRANSIT:"ARRIVED", ARRIVED:"DELIVERED" }; const status = next[d.status]; if (!status) return; if (status === "DELIVERED") { setScanTarget(d.id); return; } await updateDeliveryStatus(d.id, status as "PICKED_UP" | "DELIVERED"); load(); };
+    const confirm = async (id:string) => { setError(null); try { await updateDeliveryStatus(id,"DELIVERED",scanInput); setScanTarget(null); setScanInput(""); load(); } catch(e:any){setError(e.message ?? "The QR code could not be verified.");} };
 
-    const load = async () => {
-        try {
-            const data = await fetchRiderDeliveries(RIDER_ID);
-            setDeliveries(data.filter((d) => d.status !== "DELIVERED"));
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        load();
-    }, []);
-
-    const handlePickUp = async (id: string) => {
-        await updateDeliveryStatus(id, "PICKED_UP");
-        load();
-    };
-
-    const confirmDelivery = async (id: string) => {
-        setError(null);
-        try {
-            await updateDeliveryStatus(id, "DELIVERED", scanInput);
-            setScanTarget(null);
-            setScanInput("");
-            load();
-        } catch (err: any) {
-            setError(err.message ?? "Scanned code didn't match this delivery.");
-        }
-    };
-
-    if (loading) return <div className="screen empty-state">Loading your deliveries...</div>;
-
-    if (deliveries.length === 0) {
-        return <div className="screen empty-state">No active deliveries assigned to you right now.</div>;
-    }
-
-    return (
-        <div className="screen">
-            {deliveries.map((d) => (
-                <div className="card" key={d.id}>
-                    <div className="card-top">
-                        <div>
-                            <p className="card-title">{d.customerName}</p>
-                            <p className="card-sub">{d.address}</p>
-                        </div>
-                        <span className={`status-pill status-${d.status}`}>{d.status.replace("_", " ")}</span>
-                    </div>
-                    <RouteTrack status={d.status} />
-
-                    {d.status === "ASSIGNED" && (
-                        <button className="btn" style={{ marginTop: 12 }} onClick={() => handlePickUp(d.id)}>
-                            Mark picked up
-                        </button>
-                    )}
-
-                    {d.status === "PICKED_UP" && scanTarget !== d.id && (
-                        <button
-                            className="btn"
-                            style={{ marginTop: 12 }}
-                            onClick={() => setScanTarget(d.id)}
-                        >
-                            Scan to confirm delivery
-                        </button>
-                    )}
-
-                    {scanTarget === d.id && (
-                        <div style={{ marginTop: 12 }}>
-                            <div className="field">
-                                <label>Scanned code</label>
-                                <input
-                                    value={scanInput}
-                                    onChange={(e) => setScanInput(e.target.value)}
-                                    placeholder="Scan or paste the delivery's QR code"
-                                    autoFocus
-                                />
-                            </div>
-                            {error && <p className="error-text">{error}</p>}
-                            <button className="btn" onClick={() => confirmDelivery(d.id)} disabled={!scanInput}>
-                                Confirm delivery
-                            </button>
-                        </div>
-                    )}
-                </div>
-            ))}
-        </div>
-    );
-  }
+    return <section className="screen-modern"><div className="page-heading"><div><span className="eyebrow">RIDER APP</span><h1>Ready when you are.</h1><p>Your route, your next action, and delivery proof — all in one place.</p></div><div className="rider-status-chip"><span /> ON DUTY</div></div>
+        {loading ? <div className="panel loading-panel">Loading your route…</div> : deliveries.length === 0 ? <div className="panel empty-modern"><div className="empty-icon">⌁</div><h3>No active deliveries</h3><p>You're all clear. New assignments will appear here.</p></div> : <div className="rider-delivery-list">{deliveries.map(d => { const idx = Math.max(0, STEPS.indexOf(d.status)); return <div className="panel rider-delivery" key={d.id}><div className="delivery-top"><div><span className="eyebrow">ACTIVE DELIVERY · #{d.id.slice(-5)}</span><h3>{d.customerName}</h3><p>{d.address}</p></div><span className={`status-pill status-${d.status}`}>{d.status.replace("_"," ")}</span></div><div className="progress-steps">{STEPS.map((s,i)=><div className={`progress-step ${i<=idx?"done":""} ${i===idx?"current":""}`} key={s}><div className="step-dot">{i<idx?"✓":i+1}</div><span>{s.replace("_"," ")}</span></div>)}</div><div className="delivery-details"><div><small>PACKAGE</small><strong>{d.itemDescription}</strong></div><div><small>DESTINATION</small><strong>{d.address}</strong></div></div>{scanTarget === d.id ? <div className="verify-box"><span className="verify-icon">⌗</span><div><strong>Verify delivery</strong><p>Scan the customer's QR code to complete this order.</p><input value={scanInput} onChange={e=>setScanInput(e.target.value)} placeholder="Scanned code" autoFocus />{error&&<p className="error-text">{error}</p>}<div className="verify-actions"><button className="secondary-btn" onClick={()=>setScanTarget(null)}>Cancel</button><button className="primary-btn compact" disabled={!scanInput} onClick={()=>confirm(d.id)}>Confirm delivery</button></div></div></div> : <button className="primary-btn" onClick={()=>advance(d)}>{d.status === "ARRIVED" ? "Scan QR & complete" : d.status === "ASSIGNED" ? "Accept & pick up" : d.status === "PICKED_UP" ? "Start delivery" : "Mark as arrived"}<span>→</span></button>}</div>})}</div>}
+    </section>;
+}

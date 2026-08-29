@@ -1,4 +1,4 @@
-export type DeliveryStatus = "OPEN" | "ASSIGNED" | "PICKED_UP" | "DELIVERED" | "CANCELLED";
+export type DeliveryStatus = "OPEN" | "ASSIGNED" | "PICKED_UP" | "IN_TRANSIT" | "ARRIVED" | "DELIVERED" | "CANCELLED";
 
 export interface DeliveryRequest {
     id: string;
@@ -12,9 +12,13 @@ export interface DeliveryRequest {
     qrCode: string;
     createdAt: string;
     updatedAt: string;
+    trackingToken?: string;
 }
 
 export interface Rider {
     id: string;
     name: string;
+    status?: "AVAILABLE" | "BUSY" | "OFFLINE";
+    distanceKm?: number;
+    etaMinutes?: number;
 }
