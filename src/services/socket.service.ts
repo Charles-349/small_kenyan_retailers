@@ -5,25 +5,32 @@ import { sql } from "drizzle-orm";
 
 export function initializeSocketHandlers(io: Server) {
   io.on("connection", (socket: Socket) => {
-    socket.on("rider:join", (riderId: number) => {
-      socket.join(`rider_${riderId}`);
+    socket.on("rider:join", (riderId: number | string) => {
+      const id = Number(riderId);
+      socket.join(`rider_${id}`);
     });
 
     socket.on("delivery:track", (trackingToken: string) => {
-      socket.join(`track_${trackingToken}`);
+      if (trackingToken) {
+        socket.join(`track_${trackingToken}`);
+      }
     });
 
     socket.on(
       "rider:location:ping",
       async (data: {
-        riderId: number;
-        latitude: string;
-        longitude: string;
-        heading?: string;
-        speed?: string;
+        riderId: number | string;
+        latitude: string | number;
+        longitude: string | number;
+        heading?: string | number;
+        speed?: string | number;
         trackingToken?: string;
       }) => {
-        const { riderId, latitude, longitude, heading, speed, trackingToken } = data;
+        const riderId = Number(data.riderId);
+        const latitude = String(data.latitude);
+        const longitude = String(data.longitude);
+        const heading = data.heading !== undefined ? Number(data.heading) : null;
+        const speed = data.speed !== undefined ? Number(data.speed) : null;
 
         try {
           await db
@@ -32,16 +39,16 @@ export function initializeSocketHandlers(io: Server) {
               riderId,
               latitude,
               longitude,
-              heading: heading || null,
-              speed: speed || null,
+              heading,
+              speed,
             })
             .onConflictDoUpdate({
               target: riderLocations.riderId,
               set: {
                 latitude,
                 longitude,
-                heading: heading || null,
-                speed: speed || null,
+                heading,
+                speed,
                 updatedAt: sql`NOW()`,
               },
             });
@@ -49,12 +56,12 @@ export function initializeSocketHandlers(io: Server) {
           console.error("Warning logging rider location to DB:", error);
         }
 
-        if (trackingToken) {
-          io.to(`track_${trackingToken}`).emit("delivery:location:update", {
+        if (data.trackingToken) {
+          io.to(`track_${data.trackingToken}`).emit("delivery:location:update", {
             latitude,
             longitude,
-            heading: heading || "0",
-            speed: speed || "0",
+            heading: heading !== null ? String(heading) : "0",
+            speed: speed !== null ? String(speed) : "0",
             timestamp: new Date().toISOString(),
           });
         }
