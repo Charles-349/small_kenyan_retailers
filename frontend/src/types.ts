@@ -1,24 +1,103 @@
-export type DeliveryStatus = "OPEN" | "ASSIGNED" | "PICKED_UP" | "IN_TRANSIT" | "ARRIVED" | "DELIVERED" | "CANCELLED";
+
+// export type DeliveryStatus =
+//   | "open"
+//   | "assigned"
+//   | "accepted"
+//   | "picked_up"
+//   | "in_transit"
+//   | "delivered"
+//   | "failed"
+//   | "cancelled";
+// export interface DeliveryRequest {
+//   id: number;
+//   retailerId: number;
+//   customerName: string;
+//   customerPhone: string;
+//   deliveryAddress: string;
+//   itemDescription: string;
+//   specialInstructions?: string;
+//   status: DeliveryStatus;
+//   riderId: number | null;
+//   qrCode?: string | null;
+//   trackingToken?: string | null;
+//   latitude?: number | null;
+//   longitude?: number | null;
+//   createdAt: string;
+//   updatedAt: string;
+// }
+// export interface Rider {
+//   id: number;
+//   name: string;
+//   status?: "available" | "busy" | "offline";
+//   distanceKm?: number;
+//   etaMinutes?: number;
+//   latitude?: number | null;
+//   longitude?: number | null;
+// }
+
+
+
+export type DeliveryStatus =
+    | "open"
+    | "assigned"
+    | "accepted"
+    | "picked_up"
+    | "in_transit"
+    | "delivered"
+    | "failed"
+    | "cancelled";
 
 export interface DeliveryRequest {
-    id: string;
-    retailerId: string;
+    id: number;
+
+    retailerId: number;
+
     customerName: string;
+
     customerPhone: string;
-    address: string;
+
+    deliveryAddress: string;
+
     itemDescription: string;
+
+    specialInstructions?: string;
+
     status: DeliveryStatus;
-    riderId: string | null;
-    qrCode: string;
+
+    riderId: number | null;
+
+    /**
+     * Assignment ID returned by the backend when
+     * the delivery has been assigned to a rider.
+     */
+    assignmentId?: number | null;
+
+    qrCode?: string | null;
+
+    trackingToken?: string | null;
+
+    latitude?: number | null;
+
+    longitude?: number | null;
+
     createdAt: string;
+
     updatedAt: string;
-    trackingToken?: string;
 }
 
 export interface Rider {
-    id: string;
+    id: number;
+
     name: string;
-    status?: "AVAILABLE" | "BUSY" | "OFFLINE";
+
+    status?: "available" | "busy" | "offline";
+
     distanceKm?: number;
+
     etaMinutes?: number;
+
+    latitude?: number | null;
+
+    longitude?: number | null;
 }
+
