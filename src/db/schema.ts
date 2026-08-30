@@ -182,11 +182,8 @@ export const deliveryRequests = pgTable(
     specialInstructions: text(
       "special_instructions"
     ),
-  
-
-    deliveryQrCode: varchar(
-    "delivery_qr_code",
-    { length: 255 }
+    deliveryQrCode: text(
+    "delivery_qr_code"
     ),
     status: deliveryStatusEnum(
       "status"

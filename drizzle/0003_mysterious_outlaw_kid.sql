@@ -1,0 +1,1 @@
+ALTER TABLE "delivery_requests" ALTER COLUMN "delivery_qr_code" SET DATA TYPE text;

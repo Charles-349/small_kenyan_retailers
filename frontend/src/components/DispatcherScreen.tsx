@@ -76,8 +76,7 @@ export default function DispatcherScreen({
 
         try {
             await autoAssignRider(
-                deliveryRequestId,
-                user.id
+            deliveryRequestId
             );
 
             await load();

@@ -104,24 +104,51 @@ export const createDeliveryRequest = (data: CreateDeliveryData) =>
       `/retailer-deliveries/deliveries/status/${encodeURIComponent(status)}`,
     );
 
-/* DISPATCHER  */ /** * Get deliveries waiting for assignment. */ 
+/* DISPATCHER */
 
+/** Get deliveries waiting for assignment. */
 export const fetchOpenDeliveries =
   () => request<DeliveryRequest[]>("/dispatcher-deliveries/open");
-/** * Get deliveries that have already been assigned. */ export const fetchAssignedDeliveries =
+
+/** Get deliveries that have already been assigned. */
+export const fetchAssignedDeliveries =
   () => request<DeliveryRequest[]>("/dispatcher-deliveries/assigned");
-/** * Assign a delivery to a rider. * * Backend expects: * POST /api/assignments/assign * * Body: * { * deliveryRequestId, * riderId, * dispatcherId * } */ export const assignRider =
-  (deliveryRequestId: number, riderId: number, dispatcherId: number) =>
-    request("/assignments/assign", {
+
+/**
+ * Assign a specific rider to a delivery.
+ *
+ * Backend route:
+ * POST /api/assignments/deliveries/:id/assign
+ */
+export const assignRider = (
+  deliveryRequestId: number,
+  riderId: number
+) =>
+  request(
+    `/assignments/deliveries/${deliveryRequestId}/assign`,
+    {
       method: "POST",
-      body: JSON.stringify({ deliveryRequestId, riderId, dispatcherId }),
-    });
-/** * Automatically assign the nearest rider. */ export const autoAssignRider =
-  (deliveryRequestId: number, dispatcherId: number) =>
-    request("/assignments/auto-assign", {
+      body: JSON.stringify({
+        riderId,
+      }),
+    }
+  );
+
+/**
+ * Auto-assign nearest available rider.
+ *
+ * Backend route:
+ * POST /api/assignments/deliveries/:id/auto-assign
+ */
+export const autoAssignRider = (
+  deliveryRequestId: number
+) =>
+  request(
+    `/assignments/deliveries/${deliveryRequestId}/auto-assign`,
+    {
       method: "POST",
-      body: JSON.stringify({ deliveryRequestId, dispatcherId }),
-    });
+    }
+  );
 
 /* RIDER  */ /** * Get deliveries assigned to the logged-in rider. * * The backend gets the rider ID from the JWT, * so we do NOT send riderId. */ export const fetchRiderDeliveries =
   () => request<DeliveryRequest[]>("/rider-deliveries/my-deliveries");
